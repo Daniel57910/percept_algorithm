@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import pdb
 # Setting the random seed, feel free to change it and see different solutions.
 np.random.seed(42)
 import os
@@ -20,10 +21,59 @@ def prediction(X, W, b):
 # update the weights and bias W, b, according to the perceptron algorithm,
 # and return W and b.
 
+def determine_increment_of_coefficient_and_weights(column):
+
+  if column['y_hat'] > 0 and column['y'] > 0 or column['y_hat'] < 0 and column['y'] < 0:
+    return 0
+
+  if column['y_hat'] > 0 and column['y'] < 0:
+    return -1
+  
+  return 1
+
+
+def add_weights_to_x_axis(coefficient, boolean, learn_rate):
+
+  pdb.set_trace()
+ 
+  if boolean == 0:
+    return 0
+  
+  if boolean == 1:
+    return coefficient * learn_rate
+  
+  return coefficient * learn_rate * -1
+ 
+  print(locals())
+
+  
+def increment_learn_rate(column, learn_rate):
+
+  if column['coefficient_bool'] == 0:
+    return 0
+
+  if column['coefficient_bool'] == 1:
+    return learn_rate
+  
+  return learn_rate * -1
+
 
 def perceptronStep(X, y, W, b, learn_rate=0.01):
 
-    print(X)
+    X['X_0_W_0'] = X['x_coeff_1'] * W[0]
+    X['X_1_W_1'] = X['x_coeff_2'] * W[1]
+
+    y_hat = X['X_0_W_0'] + X['X_1_W_1'] + b
+
+    values = pd.DataFrame({'y_hat': y_hat, 'y': y})
+
+    X['coefficient_bool'] =  values.apply(lambda column: determine_increment_of_coefficient_and_weights(column), axis=1)
+    X['learn_rate_increment'] = X.apply(lambda column: increment_learn_rate(column, learn_rate), axis=1)
+    X['weight_adust_0'] = X.apply(lambda column: add_weights_to_x_axis(X['x_coeff_1'].values, X['coefficient_bool'].values, learn_rate), axis=1)
+    X['weight_adust_1'] = X.apply(lambda column: add_weights_to_x_axis(X['x_coeff_2'], X['coefficient_bool'], learn_rate), axis=1)
+
+    b += X['learn_rate_increment'].sum()
+    print(W[0])
     return W, b
 
 # This function runs the perceptron algorithm repeatedly on the dataset,
@@ -48,11 +98,9 @@ def trainPerceptronAlgorithm(X, y, learn_rate=0.01, num_epochs=1):
 
 def main():
 
-  labelled_data = pd.read_csv(os.getcwd() + '/data.csv', delimiter=',', index_col=False)
+  labelled_data = pd.read_csv(os.getcwd() + '/data.csv', delimiter=',', index_col=False, names=['x_coeff_1', 'x_coeff_2', 'y'])
   X = labelled_data[labelled_data.columns[0:-1]]
   y = labelled_data[labelled_data.columns[-1]]
-  print(X.values)
-  print(y.values)
   trainPerceptronAlgorithm(X, y)
 
 
