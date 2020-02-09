@@ -69,6 +69,7 @@ def perceptronStep(X, y, W, b, learn_rate=0.01):
 
     X['coefficient_bool'] =  values.apply(lambda column: determine_increment_of_coefficient_and_weights(column), axis=1)
     X['learn_rate_increment'] = X.apply(lambda column: increment_learn_rate(column, learn_rate), axis=1)
+    # finish creating weight adjustments, add weights to axis and return
     X['weight_adust_0'] = X.apply(lambda column: add_weights_to_x_axis(X['x_coeff_1'].values, X['coefficient_bool'].values, learn_rate), axis=1)
     X['weight_adust_1'] = X.apply(lambda column: add_weights_to_x_axis(X['x_coeff_2'], X['coefficient_bool'], learn_rate), axis=1)
 
